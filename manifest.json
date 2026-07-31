@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Find on Romance.io",
   "version": "1.0.0",
-  "description": "Find books on Romance.io from Amazon, Goodreads, Audible, or selected text on any page.",
+  "description": "Find books on Romance.io from Amazon, Goodreads, Audible, Smashwords, Kobo, StoryGraph, or selected text on any page.",
   "permissions": [
     "contextMenus",
     "storage"
@@ -53,6 +53,44 @@
         "shared/storage.js",
         "shared/ui.js",
         "content/audible.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.smashwords.com/books/view/*",
+        "https://smashwords.com/books/view/*"
+      ],
+      "js": [
+        "shared/logic.js",
+        "shared/storage.js",
+        "shared/ui.js",
+        "content/smashwords.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.kobo.com/*/ebook/*",
+        "https://kobo.com/*/ebook/*"
+      ],
+      "js": [
+        "shared/logic.js",
+        "shared/storage.js",
+        "shared/ui.js",
+        "content/kobo.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://app.thestorygraph.com/books/*"
+      ],
+      "js": [
+        "shared/logic.js",
+        "shared/storage.js",
+        "shared/ui.js",
+        "content/storygraph.js"
       ],
       "run_at": "document_idle"
     },

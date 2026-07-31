@@ -82,7 +82,13 @@
     );
     const visible = RIO.cleanWhitespace(anchor.textContent);
     const imageAlt = RIO.cleanWhitespace(anchor.querySelector("img")?.alt);
-    return explicit || visible || imageAlt || getSlug(anchor);
+    return cleanResultTitle(explicit || visible || imageAlt || getSlug(anchor));
+  }
+
+  function cleanResultTitle(value) {
+    return RIO.getCoreTitle(RIO.cleanWhitespace(value)
+      .replace(/^#?\{?index\}?\s*[-–—]\s*/i, "")
+      .replace(/\s+by\s+.+$/i, ""));
   }
 
   function collectCandidates() {

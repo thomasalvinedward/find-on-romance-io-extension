@@ -33,6 +33,15 @@
       .replace(/\s+/g, " ");
   }
 
+  function compactInitials(value) {
+    return cleanWhitespace(value)
+      .replace(/\b((?:[A-Za-z]\.\s*){2,})/g, (match) =>
+        `${match.replace(/[^A-Za-z]/g, "")} `
+      )
+      .trim()
+      .replace(/\s+/g, " ");
+  }
+
   function meaningfulTokens(value) {
     return normalize(value)
       .split(" ")
@@ -82,18 +91,34 @@
   }
 
   function authorAppearsInText(author, text) {
-    const normalizedAuthor = normalize(author);
-    const normalizedText = normalize(text);
-    if (!normalizedAuthor || !normalizedText) return false;
-    if (normalizedText.includes(normalizedAuthor)) return true;
-
-    const tokens = authorTokens(author);
-    if (tokens.length === 1) {
-      return new RegExp(`(?:^| )${escapeRegExp(tokens[0])}(?: |$)`).test(normalizedText);
+    const authorVariants = unique([
+      normalize(author),
+      normalize(compactInitials(author))
+    ]);
+    const textVariants = unique([
+      normalize(text),
+      normalize(compactInitials(text))
+    ]);
+    if (!authorVariants.length || !textVariants.length) return false;
+    if (authorVariants.some((authorValue) =>
+      textVariants.some((textValue) => textValue.includes(authorValue))
+    )) {
+      return true;
     }
 
-    return tokens.every((token) =>
-      new RegExp(`(?:^| )${escapeRegExp(token)}(?: |$)`).test(normalizedText)
+    const tokens = unique(authorVariants.flatMap((authorValue) =>
+      authorValue.split(" ").filter((token) => token.length > 0)
+    ));
+    if (tokens.length === 1) {
+      return textVariants.some((textValue) =>
+        new RegExp(`(?:^| )${escapeRegExp(tokens[0])}(?: |$)`).test(textValue)
+      );
+    }
+
+    return textVariants.some((textValue) =>
+      tokens.every((token) =>
+        new RegExp(`(?:^| )${escapeRegExp(token)}(?: |$)`).test(textValue)
+      )
     );
   }
 
@@ -157,10 +182,10 @@
       coreTitle.startsWith(`${candidateTitle} `) ||
       candidateContext.startsWith(`${coreTitle} `)
     ) {
-      titleScore = 0.69;
+      titleScore = 0.59;
       reasons.push("core title prefix");
     } else if (candidateContext.includes(coreTitle)) {
-      titleScore = 0.65;
+      titleScore = 0.54;
       reasons.push("core title contained in result");
     } else {
       const sourceTokens = meaningfulTokens(coreTitle);
@@ -209,10 +234,10 @@
   }
 
   function createSearchUrl(book, lookupId) {
-    const query = cleanWhitespace([
+    const query = normalize(compactInitials([
       book.coreTitle || getCoreTitle(book.rawTitle),
       ...(book.authors ?? [])
-    ].join(" "));
+    ].join(" ")));
     const url = new URL("https://www.romance.io/search");
     url.searchParams.set("q", query);
     if (lookupId) {
@@ -221,6 +246,18 @@
       url.hash = `find-on-romance-io=${encodeURIComponent(lookupId)}`;
     }
     return url.toString();
+  }
+
+  function createBookRecord({ source, rawTitle, authors, identifiers = {}, structured = null }) {
+    const cleanedTitle = cleanWhitespace(rawTitle);
+    return {
+      source,
+      rawTitle: cleanedTitle,
+      coreTitle: getCoreTitle(cleanedTitle),
+      authors: unique(authors ?? []),
+      ...identifiers,
+      isbn: cleanWhitespace(identifiers.isbn || structured?.isbn || "")
+    };
   }
 
   function parseJsonLd() {
@@ -266,16 +303,34 @@
         found.push({
           title: cleanWhitespace(node.name),
           authors,
-          isbn: cleanWhitespace(node.isbn),
+          isbn: cleanWhitespace(node.isbn || node.gtin13),
           sku: cleanWhitespace(node.sku)
         });
       });
     }
 
-    return found.sort((a, b) => {
-      const score = (item) => Number(Boolean(item.title)) + Number(item.authors.length > 0);
+    const ranked = found.sort((a, b) => {
+      const score = (item) =>
+        Number(Boolean(item.title)) +
+        (Number(item.authors.length > 0) * 4) +
+        Number(Boolean(item.isbn)) +
+        Number(Boolean(item.sku));
       return score(b) - score(a);
-    })[0] ?? null;
+    });
+    const best = ranked[0] ?? null;
+    if (!best) return null;
+
+    const compatible = ranked.find((item) =>
+      item !== best &&
+      normalize(item.title) === normalize(best.title) &&
+      (item.isbn || item.sku)
+    );
+
+    return {
+      ...best,
+      isbn: best.isbn || compatible?.isbn || "",
+      sku: best.sku || compatible?.sku || ""
+    };
   }
 
   function textFrom(selectors, root = document) {
@@ -301,6 +356,7 @@
   Object.assign(NS, {
     cleanWhitespace,
     normalize,
+    compactInitials,
     meaningfulTokens,
     unique,
     getCoreTitle,
@@ -308,6 +364,7 @@
     scoreCandidate,
     pickBestMatch,
     createSearchUrl,
+    createBookRecord,
     extractStructuredBook,
     textFrom,
     textsFrom

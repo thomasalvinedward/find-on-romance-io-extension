@@ -2,20 +2,43 @@
   "use strict";
   const RIO = globalThis.FindOnRomanceIO;
 
-  function isBookPage() {
+  const SOURCE = "amazon";
+  const TITLE_SELECTORS = [
+    "#productTitle",
+    "#ebooksProductTitle",
+    "h1#title span"
+  ];
+  const AUTHOR_FALLBACK_SELECTORS = [
+    "#bylineInfo .author a",
+    "#bylineInfo a.contrib-link",
+    "#bylineInfo a[href*='/e/']"
+  ];
+  const PRIMARY_PLACEMENT_SELECTOR = "#rightCol";
+  const FALLBACK_PLACEMENT_SELECTORS = [
+    "#centerCol",
+    "#title_feature_div"
+  ];
+
+  function isSupportedPage() {
     if (!/\/(?:dp|gp\/product)\/[A-Z0-9]{10}/i.test(location.pathname)) return false;
-    if (!document.querySelector("#productTitle, #ebooksProductTitle, h1#title span")) return false;
+    if (!document.querySelector(TITLE_SELECTORS.join(","))) return false;
 
     const structured = RIO.extractStructuredBook();
     if (structured?.authors?.length || structured?.isbn) return true;
+    if (hasBookByline()) return true;
 
-    const authorByline = [...document.querySelectorAll("#bylineInfo .author")].some((span) => {
+    return hasBookDetailSignals();
+  }
+
+  function hasBookByline() {
+    return [...document.querySelectorAll("#bylineInfo .author")].some((span) => {
       const role = RIO.normalize(span.querySelector(".contribution")?.textContent);
       return role.includes("author") || role.includes("editor");
     });
-    if (authorByline) return true;
+  }
 
-    const bookSignals = [
+  function hasBookDetailSignals() {
+    const selectors = [
       "#tmmSwatches",
       "#mediaMatrix",
       "#formats",
@@ -32,21 +55,16 @@
       "#detailBulletsWrapper_feature_div"
     ]));
 
-    return bookSignals.some((selector) => document.querySelector(selector)) &&
+    return selectors.some((selector) => document.querySelector(selector)) &&
       /\b(?:isbn|publisher|publication date|print length|audible audiobook|kindle|paperback|hardcover)\b/.test(detailText);
   }
 
-  function extractAmazonBook() {
-    const structured = RIO.extractStructuredBook();
-    const rawTitle = RIO.textFrom([
-      "#productTitle",
-      "#ebooksProductTitle",
-      "h1#title span",
-      "h1"
-    ]) || structured?.title;
+  function getTitle(structured) {
+    return RIO.textFrom(TITLE_SELECTORS) || structured?.title;
+  }
 
-    const authorSpans = [...document.querySelectorAll("#bylineInfo .author")];
-    let authors = authorSpans
+  function getAuthors(structured) {
+    const authors = [...document.querySelectorAll("#bylineInfo .author")]
       .filter((span) => {
         const role = RIO.normalize(span.querySelector(".contribution")?.textContent);
         return !role || role.includes("author") || role.includes("editor");
@@ -54,44 +72,51 @@
       .flatMap((span) => [...span.querySelectorAll("a")])
       .map((anchor) => RIO.cleanWhitespace(anchor.textContent))
       .filter(Boolean);
+    if (authors.length) return authors;
 
-    if (!authors.length) {
-      authors = RIO.textsFrom([
-        "#bylineInfo .author a",
-        "#bylineInfo a.contrib-link",
-        "#bylineInfo a[href*='/e/']"
-      ]);
-    }
-    if (!authors.length) authors = structured?.authors ?? [];
+    const fallbackAuthors = RIO.textsFrom(AUTHOR_FALLBACK_SELECTORS);
+    return fallbackAuthors.length ? fallbackAuthors : structured?.authors ?? [];
+  }
 
+  function getIdentifiers() {
     return {
-      source: "amazon",
-      rawTitle: RIO.cleanWhitespace(rawTitle),
-      coreTitle: RIO.getCoreTitle(rawTitle),
-      authors: RIO.unique(authors),
-      asin: location.pathname.match(/\/(?:dp|gp\/product)\/([A-Z0-9]{10})/i)?.[1] ?? "",
-      isbn: structured?.isbn ?? ""
+      asin: location.pathname.match(/\/(?:dp|gp\/product)\/([A-Z0-9]{10})/i)?.[1] ?? ""
     };
   }
 
-  if (!isBookPage()) return;
-
-  const rightCol = await RIO.waitForElement("#rightCol");
-  if (rightCol) {
-    RIO.insertButton({
-      container: rightCol,
-      bookProvider: extractAmazonBook,
-      variant: "amazon"
-    });
-    return;
-  }
-
-  const fallback = await RIO.waitForElement(["#centerCol", "#title_feature_div"]);
-  if (fallback) {
-    RIO.insertButton({
-      container: fallback,
-      bookProvider: extractAmazonBook,
-      variant: "amazon"
+  function extractBook() {
+    const structured = RIO.extractStructuredBook();
+    return RIO.createBookRecord({
+      source: SOURCE,
+      rawTitle: getTitle(structured),
+      authors: getAuthors(structured),
+      identifiers: getIdentifiers(),
+      structured
     });
   }
+
+  async function insertRomanceButton() {
+    const primary = await RIO.waitForElement(PRIMARY_PLACEMENT_SELECTOR);
+    if (primary) {
+      return RIO.insertButton({
+        container: primary,
+        bookProvider: extractBook,
+        variant: SOURCE
+      });
+    }
+
+    const fallback = await RIO.waitForElement(FALLBACK_PLACEMENT_SELECTORS);
+    if (fallback) {
+      return RIO.insertButton({
+        container: fallback,
+        bookProvider: extractBook,
+        variant: SOURCE
+      });
+    }
+
+    return false;
+  }
+
+  if (!isSupportedPage()) return;
+  await insertRomanceButton();
 })();

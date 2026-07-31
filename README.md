@@ -1,6 +1,6 @@
 # Find on Romance.io
 
-A Chrome extension for quickly finding books on [Romance.io](https://www.romance.io/) from Amazon, Goodreads, Audible, or selected text on any page.
+A Chrome extension for quickly finding books on [Romance.io](https://www.romance.io/) from Amazon, Goodreads, Audible, Smashwords, Kobo, StoryGraph, or selected text on any page.
 
 ## Features
 
@@ -12,10 +12,13 @@ A Chrome extension for quickly finding books on [Romance.io](https://www.romance
 
 ## Supported Sites
 
-- Amazon book product pages
-- Goodreads book pages
-- Audible audiobook pages
-- Romance.io search result pages
+- Amazon
+- Goodreads
+- Audible
+- Smashwords
+- Kobo
+- StoryGraph
+- Romance.io
 
 ## How It Works
 
@@ -37,7 +40,7 @@ https://github.com/user-attachments/assets/69ac8768-bcf9-489f-b7b6-131fbc3a273b
 3. Enable **Developer mode**.
 4. Select **Load unpacked**.
 5. Choose this project folder.
-6. Refresh any already-open Amazon, Goodreads, Audible, or Romance.io tabs.
+6. Refresh any already-open Amazon, Goodreads, Audible, Smashwords, Kobo, StoryGraph, or Romance.io tabs.
 
 ## Permissions
 
@@ -61,10 +64,15 @@ Project structure:
 - `content/amazon.js`: Amazon page integration
 - `content/goodreads.js`: Goodreads page integration
 - `content/audible.js`: Audible page integration
+- `content/smashwords.js`: Smashwords page integration
+- `content/kobo.js`: Kobo page integration
+- `content/storygraph.js`: StoryGraph page integration
 - `content/romance-search.js`: Romance.io search result matching
 - `shared/logic.js`: title cleanup, matching, and search URL helpers
 - `shared/storage.js`: temporary lookup storage
 - `shared/ui.js`: shared button UI
+
+Retailer integrations follow the same extraction pattern: define site-specific title and author selectors, prefer embedded or structured metadata when it is the most reliable source, use audited page-scoped selectors as fallbacks, and return through `createBookRecord()` so every site produces the same normalized book shape.
 
 Run syntax checks:
 
@@ -76,9 +84,12 @@ node --check shared/ui.js
 node --check content/amazon.js
 node --check content/goodreads.js
 node --check content/audible.js
+node --check content/smashwords.js
+node --check content/kobo.js
+node --check content/storygraph.js
 node --check content/romance-search.js
 ```
 
 ## Disclaimer
 
-This project is not affiliated with Romance.io, Amazon, Goodreads, Audible, or Google.
+This project is not affiliated with Romance.io, Amazon, Goodreads, Audible, Smashwords, Kobo, StoryGraph, or Google.

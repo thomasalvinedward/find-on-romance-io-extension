@@ -141,6 +141,86 @@
         cursor: progress;
         opacity: 0.82;
       }
+
+      /* Smashwords */
+      #${WRAPPER_ID}.find-on-romance-io--smashwords {
+        display: inline-block;
+        width: auto;
+        margin: 12px 0;
+      }
+      #${WRAPPER_ID}.find-on-romance-io--smashwords #${BUTTON_ID} {
+        display: inline-block;
+        width: auto;
+        min-height: 29px;
+        padding: 4px 8px;
+        border: 1px solid #DD0489;
+        border-radius: 3px;
+        background: #DD0489;
+        color: #FFFFFF !important;
+        font: 700 12.6px/18.9px Arial, "Helvetica Neue", Helvetica, sans-serif;
+        box-shadow: none;
+      }
+      #${WRAPPER_ID}.find-on-romance-io--smashwords #${BUTTON_ID}:hover {
+        background: #BE0376;
+        border-color: #BE0376;
+        box-shadow: none;
+      }
+      #${WRAPPER_ID}.find-on-romance-io--smashwords #${BUTTON_ID}:active {
+        transform: none;
+      }
+
+      /* Kobo */
+      #${WRAPPER_ID}.find-on-romance-io--kobo {
+        margin: 12px auto 0;
+        width: 188px;
+        max-width: 100%;
+      }
+      #${WRAPPER_ID}.find-on-romance-io--kobo #${BUTTON_ID} {
+        display: block;
+        width: 100%;
+        min-height: 35px;
+        padding: 5px 7px;
+        border: 3px solid #DD0489;
+        border-radius: 0;
+        background: #DD0489;
+        color: #FFFFFF !important;
+        font: 700 14px/normal "Trebuchet MS", Trebuchet, Arial, sans-serif;
+        box-shadow: none;
+      }
+      #${WRAPPER_ID}.find-on-romance-io--kobo #${BUTTON_ID}:hover {
+        background: #BE0376;
+        border-color: #BE0376;
+        box-shadow: none;
+      }
+      #${WRAPPER_ID}.find-on-romance-io--kobo #${BUTTON_ID}:active {
+        transform: none;
+      }
+
+      /* StoryGraph */
+      #${WRAPPER_ID}.find-on-romance-io--storygraph {
+        margin: 12px 0 0;
+      }
+      #${WRAPPER_ID}.find-on-romance-io--storygraph #${BUTTON_ID} {
+        display: inline-block;
+        width: 100%;
+        min-height: 36px;
+        padding: 8px 16px;
+        border: 2px solid #DD0489;
+        border-radius: 2px;
+        background: #DD0489;
+        color: #FFFFFF !important;
+        font: 600 12px/16px Poppins, sans-serif;
+        text-align: center;
+        box-shadow: none;
+      }
+      #${WRAPPER_ID}.find-on-romance-io--storygraph #${BUTTON_ID}:hover {
+        background: #BE0376;
+        border-color: #BE0376;
+        box-shadow: none;
+      }
+      #${WRAPPER_ID}.find-on-romance-io--storygraph #${BUTTON_ID}:active {
+        transform: none;
+      }
     `;
     document.documentElement.append(style);
   }
@@ -238,12 +318,39 @@
     return wrapper;
   }
 
+  function buildKoboButton(bookProvider) {
+    const wrapper = buildDefaultButton(bookProvider);
+    wrapper.classList.add("find-on-romance-io--kobo");
+
+    const button = wrapper.querySelector(`#${BUTTON_ID}`);
+    button.className = "purchase-action buy-now find-on-romance-io-kobo-button";
+    return wrapper;
+  }
+
+  function buildSmashwordsButton(bookProvider) {
+    const wrapper = buildDefaultButton(bookProvider);
+    wrapper.classList.add("find-on-romance-io--smashwords");
+
+    const button = wrapper.querySelector(`#${BUTTON_ID}`);
+    button.className = "btn btn-outline-secondary btn-sm find-on-romance-io-smashwords-button";
+    return wrapper;
+  }
+
+  function buildVariantButton(bookProvider, variant) {
+    const wrapper = buildDefaultButton(bookProvider);
+    wrapper.classList.add(`find-on-romance-io--${variant}`);
+    return wrapper;
+  }
+
   function makeButton(bookProvider, options = {}) {
     installStyles();
     const variant = options.variant || "default";
     if (variant === "amazon") return buildAmazonButton(bookProvider);
     if (variant === "goodreads") return buildGoodreadsButton(options.container, bookProvider);
     if (variant === "audible") return buildAudibleButton(bookProvider);
+    if (variant === "kobo") return buildKoboButton(bookProvider);
+    if (variant === "smashwords") return buildSmashwordsButton(bookProvider);
+    if (variant === "storygraph") return buildVariantButton(bookProvider, variant);
     return buildDefaultButton(bookProvider);
   }
 

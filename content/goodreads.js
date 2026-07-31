@@ -2,74 +2,91 @@
   "use strict";
   const RIO = globalThis.FindOnRomanceIO;
 
-  function extractGoodreadsBook() {
-    const structured = RIO.extractStructuredBook();
-    const rawTitle = RIO.textFrom([
-      '[data-testid="bookTitle"]',
-      "h1.Text__title1",
-      ".BookPageTitleSection h1",
-      "h1"
-    ]) || structured?.title;
-
-    let authors = RIO.textsFrom([
-      '[data-testid="name"]',
-      '.ContributorLink__name',
-      '.BookPageMetadataSection a[href*="/author/show/"] span',
-      'a[href*="/author/show/"] .Text'
-    ]);
-    if (!authors.length) authors = structured?.authors ?? [];
-
-    return {
-      source: "goodreads",
-      rawTitle: RIO.cleanWhitespace(rawTitle),
-      coreTitle: RIO.getCoreTitle(rawTitle),
-      authors: RIO.unique(authors),
-      goodreadsId: location.pathname.match(/\/book\/show\/(\d+)/)?.[1] ?? "",
-      isbn: structured?.isbn ?? ""
-    };
-  }
-
-  const actionsContainer = await RIO.waitForElement([
+  const SOURCE = "goodreads";
+  const TITLE_SELECTORS = [
+    '[data-testid="bookTitle"]',
+    "h1.Text__title1",
+    ".BookPageTitleSection h1"
+  ];
+  const AUTHOR_FALLBACK_SELECTORS = [
+    '.BookPageMetadataSection .ContributorLink__name',
+    '.BookPageMetadataSection a[href*="/author/show/"] span[data-testid="name"]',
+    '.BookPageMetadataSection a[href*="/author/show/"]'
+  ];
+  const PRIMARY_PLACEMENT_SELECTORS = [
     ".BookActions",
     '[data-testid="bookActions"]',
     '[class*="BookActions"]'
-  ]);
-
-  if (actionsContainer) {
-    RIO.insertButton({
-      container: actionsContainer,
-      position: "prepend",
-      bookProvider: extractGoodreadsBook,
-      variant: "goodreads"
-    });
-    return;
-  }
-
-  const rightColumn = await RIO.waitForElement([
+  ];
+  const FALLBACK_PLACEMENT_SELECTORS = [
     ".BookPage__rightColumn",
     '[class*="BookPage__rightColumn"]',
     ".BookPageMetadataSection"
-  ]);
+  ];
 
-  if (rightColumn) {
-    RIO.insertButton({
-      container: rightColumn,
-      bookProvider: extractGoodreadsBook,
-      variant: "goodreads"
-    });
-    return;
+  function isSupportedPage() {
+    return /^\/(?:en\/)?book\/show\//.test(location.pathname);
   }
 
-  const title = await RIO.waitForElement([
-    '[data-testid="bookTitle"]',
-    "h1.Text__title1",
-    "h1"
-  ]);
-  if (title?.parentElement) {
-    RIO.insertButton({
-      container: title.parentElement,
-      position: "after",
-      bookProvider: extractGoodreadsBook
+  function getTitle(structured) {
+    return RIO.textFrom(TITLE_SELECTORS) || structured?.title;
+  }
+
+  function getAuthors(structured) {
+    if (structured?.authors?.length) return structured.authors;
+    return RIO.textsFrom(AUTHOR_FALLBACK_SELECTORS);
+  }
+
+  function getIdentifiers() {
+    return {
+      goodreadsId: location.pathname.match(/\/book\/show\/(\d+)/)?.[1] ?? ""
+    };
+  }
+
+  function extractBook() {
+    const structured = RIO.extractStructuredBook();
+    return RIO.createBookRecord({
+      source: SOURCE,
+      rawTitle: getTitle(structured),
+      authors: getAuthors(structured),
+      identifiers: getIdentifiers(),
+      structured
     });
   }
+
+  async function insertRomanceButton() {
+    const primary = await RIO.waitForElement(PRIMARY_PLACEMENT_SELECTORS);
+    if (primary) {
+      return RIO.insertButton({
+        container: primary,
+        position: "prepend",
+        bookProvider: extractBook,
+        variant: SOURCE
+      });
+    }
+
+    const fallback = await RIO.waitForElement(FALLBACK_PLACEMENT_SELECTORS);
+    if (fallback) {
+      return RIO.insertButton({
+        container: fallback,
+        bookProvider: extractBook,
+        variant: SOURCE
+      });
+    }
+
+    const title = await RIO.waitForElement(TITLE_SELECTORS);
+    if (title?.parentElement) {
+      return RIO.insertButton({
+        container: title.parentElement,
+        position: "after",
+        bookProvider: extractBook,
+        variant: SOURCE
+      });
+    }
+
+    return false;
+  }
+
+  if (!isSupportedPage()) return;
+  await insertRomanceButton();
 })();
