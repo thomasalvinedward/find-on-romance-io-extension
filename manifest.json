@@ -1,0 +1,71 @@
+{
+  "manifest_version": 3,
+  "name": "Find on Romance.io",
+  "version": "1.0.0",
+  "description": "Find books on Romance.io from Amazon, Goodreads, Audible, or selected text on any page.",
+  "permissions": [
+    "contextMenus",
+    "storage"
+  ],
+  "background": {
+    "service_worker": "background/context-menu.js"
+  },
+  "icons": {
+    "16": "icons/icon1024.png",
+    "32": "icons/icon1024.png",
+    "48": "icons/icon1024.png",
+    "128": "icons/icon1024.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.amazon.com/*",
+        "https://amazon.com/*"
+      ],
+      "js": [
+        "shared/logic.js",
+        "shared/storage.js",
+        "shared/ui.js",
+        "content/amazon.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.goodreads.com/book/show/*",
+        "https://www.goodreads.com/en/book/show/*"
+      ],
+      "js": [
+        "shared/logic.js",
+        "shared/storage.js",
+        "shared/ui.js",
+        "content/goodreads.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.audible.com/pd/*",
+        "https://www.audible.com/ac/*"
+      ],
+      "js": [
+        "shared/logic.js",
+        "shared/storage.js",
+        "shared/ui.js",
+        "content/audible.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.romance.io/search*"
+      ],
+      "js": [
+        "shared/logic.js",
+        "shared/storage.js",
+        "content/romance-search.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
