@@ -23,6 +23,13 @@ On supported retailer pages, the extension reads visible book metadata and struc
 
 Highlighted text searches work separately: select text on any page, right-click, and choose **Search Romance.io for "..."**.
 
+## Demo
+
+See Find on Romance.io jump from a supported book page to its Romance.io listing:
+
+https://github.com/user-attachments/assets/69ac8768-bcf9-489f-b7b6-131fbc3a273b
+
+
 ## Install Locally
 
 1. Download or clone this repository.
