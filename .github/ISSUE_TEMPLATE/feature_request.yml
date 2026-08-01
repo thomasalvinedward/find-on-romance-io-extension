@@ -1,0 +1,148 @@
+name: Feature request
+description: Suggest a new site, improvement, or capability for Find on Romance.io
+title: "[Feature] "
+labels:
+  - enhancement
+assignees:
+  - thomasalvinedward
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Suggest an improvement
+
+        Thanks for helping make **Find on Romance.io** more useful. Please describe the problem or use case behind your request, not just the proposed solution.
+
+  - type: dropdown
+    id: request-type
+    attributes:
+      label: What kind of feature are you requesting?
+      description: Choose the option that best matches your idea.
+      options:
+        - Add support for a new website
+        - Improve support for an existing website
+        - Improve title or author detection
+        - Improve Romance.io search or matching
+        - Change button placement or styling
+        - Improve the right-click selected-text search
+        - Add a new extension setting or preference
+        - Accessibility improvement
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: summary
+    attributes:
+      label: Feature summary
+      description: Give the request a short, clear description.
+      placeholder: Add support for books on ExampleBooks.com
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Explain the situation that prompted the request and how the extension currently falls short.
+      placeholder: |
+        Example: I often discover books on this site, but I currently have to copy the title and author into Romance.io manually.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-behavior
+    attributes:
+      label: What would you like the extension to do?
+      description: Describe the behavior you would expect from the finished feature.
+      placeholder: |
+        Example: Add a Find on Romance.io button to individual book pages and search using the displayed title and author.
+    validations:
+      required: true
+
+  - type: input
+    id: website-name
+    attributes:
+      label: Website or feature name
+      description: Include the website, retailer, or extension feature involved, if applicable.
+      placeholder: ExampleBooks.com
+    validations:
+      required: false
+
+  - type: input
+    id: example-url
+    attributes:
+      label: Example page URL
+      description: Provide a direct link to a page where this feature would be useful.
+      placeholder: https://...
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-urls
+    attributes:
+      label: Additional example URLs
+      description: For website-support requests, include a few different book pages if possible. Different formats, editions, or page layouts are especially useful.
+      placeholder: |
+        https://...
+        https://...
+        https://...
+    validations:
+      required: false
+
+  - type: dropdown
+    id: supported-site
+    attributes:
+      label: Does this involve an existing supported site?
+      description: Select the relevant site, or choose Not applicable for a new website or general feature.
+      options:
+        - Not applicable
+        - Amazon
+        - Barnes & Noble
+        - Bookshop.org
+        - eBooks.com
+        - Goodreads
+        - Audible
+        - Smashwords
+        - Kobo
+        - StoryGraph
+        - Romance.io
+        - Right-click selected-text search
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Current workaround or alternatives
+      description: Describe how you handle this now, or any alternative solution you considered.
+      placeholder: I currently copy the title and author and search Romance.io manually.
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Add screenshots, mockups, technical details, or anything else that may help explain the request.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: testing
+    attributes:
+      label: Testing
+      description: Optional, but especially helpful for new website integrations.
+      options:
+        - label: I am willing to help test this feature on the affected website or page.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I checked that this feature has not already been requested.
+          required: true
+        - label: I included the problem or use case this feature would address.
+          required: true
