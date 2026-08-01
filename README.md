@@ -101,4 +101,6 @@ node --check content/romance-search.js
 
 ## Disclaimer
 
-This project is not affiliated with Romance.io, Amazon, Barnes & Noble, Bookshop.org, eBooks.com, Goodreads, Audible, Smashwords, Kobo, StoryGraph, or Google.
+Find on Romance.io is an independent, unofficial project and is not affiliated with, authorized by, endorsed by, or sponsored by Romance.io or any supported website or service.
+
+All product names, trademarks, and brand identifiers belong to their respective owners. See [DISCLAIMER.md](DISCLAIMER.md) for full details.
