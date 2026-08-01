@@ -1,0 +1,196 @@
+name: Bug report
+description: Report a problem with Find on Romance.io
+title: "[Bug] "
+labels:
+  - bug
+assignees:
+  - thomasalvinedward
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Thanks for reporting a problem
+
+        Please include as much detail as possible. The page URL, book details, and steps to reproduce the issue are especially helpful.
+
+  - type: dropdown
+    id: website
+    attributes:
+      label: Where did the problem occur?
+      description: Select the site or feature where you encountered the issue.
+      options:
+        - Amazon
+        - Barnes & Noble
+        - Bookshop.org
+        - eBooks.com
+        - Goodreads
+        - Audible
+        - Smashwords
+        - Kobo
+        - StoryGraph
+        - Romance.io search results
+        - Right-click selected-text search
+        - Extension icon or browser menu
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: page-url
+    attributes:
+      label: Page URL
+      description: Paste the full URL of the page where the problem occurred.
+      placeholder: https://...
+    validations:
+      required: true
+
+  - type: input
+    id: book-title
+    attributes:
+      label: Book title
+      description: Enter the title shown on the source page.
+      placeholder: Example Book Title
+    validations:
+      required: false
+
+  - type: input
+    id: book-author
+    attributes:
+      label: Author
+      description: Enter the author name shown on the source page.
+      placeholder: Author Name
+    validations:
+      required: false
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: What kind of problem is this?
+      options:
+        - Button does not appear
+        - Button placement or styling is incorrect
+        - Wrong title was detected
+        - Wrong author was detected
+        - Romance.io search query is incorrect
+        - Opened the wrong Romance.io book
+        - Did not redirect when a confident match existed
+        - Redirected when the match was uncertain
+        - Right-click search did not appear
+        - Right-click search used the wrong text
+        - Extension failed to load or produced an error
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the problem, including any error messages or unexpected behavior.
+      placeholder: |
+        Example: The button appeared, but clicking it searched Romance.io using the subtitle instead of the main title.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+      description: Describe what the extension should have done instead.
+      placeholder: |
+        Example: I expected it to search using the main title and author, then open the matching Romance.io listing.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: List the exact steps needed to trigger the problem.
+      value: |
+        1. Open ...
+        2. Click ...
+        3. ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: How often does this happen?
+      options:
+        - Every time
+        - Most of the time
+        - Sometimes
+        - Only once
+        - Unsure
+    validations:
+      required: true
+
+  - type: input
+    id: extension-version
+    attributes:
+      label: Extension version
+      description: You can find this at chrome://extensions.
+      placeholder: 1.1.0
+    validations:
+      required: true
+
+  - type: input
+    id: chrome-version
+    attributes:
+      label: Chrome version
+      description: You can find this at chrome://settings/help.
+      placeholder: 151.0.0.0
+    validations:
+      required: false
+
+  - type: dropdown
+    id: operating-system
+    attributes:
+      label: Operating system
+      options:
+        - Windows
+        - macOS
+        - ChromeOS
+        - Linux
+        - Other
+    validations:
+      required: false
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots or screen recordings
+      description: Drag and drop any screenshots or recordings that may help explain the issue.
+    validations:
+      required: false
+
+  - type: textarea
+    id: console-errors
+    attributes:
+      label: Console errors
+      description: If you checked the browser console, paste any relevant errors here.
+      placeholder: Paste console errors here.
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-details
+    attributes:
+      label: Additional details
+      description: Include anything else that may help, such as whether the issue only affects one edition, format, or site layout.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I checked that this issue has not already been reported.
+          required: true
+        - label: I included the full page URL where the problem occurred.
+          required: true
