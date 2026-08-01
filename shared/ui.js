@@ -65,26 +65,29 @@
 
       /* Amazon */
       #${WRAPPER_ID}.find-on-romance-io--amazon {
-        margin: 0 0 12px 0;
-        padding: 0 9px;
+        margin: 8px 0 12px;
+        padding: 0;
       }
       #${WRAPPER_ID}.find-on-romance-io--amazon #${BUTTON_ID} {
-        min-height: 44px;
-        padding: 14px;
+        min-height: 31px;
+        padding: 0 10px;
         border: 1px solid #DD0489;
-        border-radius: 34px;
+        border-radius: 100px;
         background: #DD0489;
         color: #FFFFFF !important;
-        font: 700 14px/1.03125 Arial, Helvetica, sans-serif;
+        font: 700 13px/29px Arial, sans-serif;
         box-shadow: none;
       }
       #${WRAPPER_ID}.find-on-romance-io--amazon #${BUTTON_ID}:hover {
-        background: #c10378;
-        border-color: #c10378;
+        background: #BE0376;
+        border-color: #BE0376;
+        color: #FFFFFF !important;
         box-shadow: none;
       }
       #${WRAPPER_ID}.find-on-romance-io--amazon #${BUTTON_ID}:active {
         transform: none;
+        background: #BE0376;
+        box-shadow: none;
       }
 
       /* Audible */
@@ -221,6 +224,75 @@
       #${WRAPPER_ID}.find-on-romance-io--storygraph #${BUTTON_ID}:active {
         transform: none;
       }
+
+      /* Barnes & Noble */
+      #${WRAPPER_ID}.find-on-romance-io--barnesandnoble {
+        margin: 12px auto 0;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+      }
+      #${WRAPPER_ID}.find-on-romance-io--barnesandnoble #${BUTTON_ID} {
+        min-height: 48px;
+        max-width: 240px;
+        padding: 12px 20px;
+        margin: 0;
+        border: 1px solid #DD0489;
+        border-radius: 0;
+        background: #DD0489;
+        color: #FFFFFF !important;
+        font: 700 14px/20px Arial, Helvetica, sans-serif;
+        box-shadow: none;
+        transform: none;
+      }
+      #${WRAPPER_ID}.find-on-romance-io--barnesandnoble #${BUTTON_ID}:hover {
+        background: #BE0376;
+        border-color: #BE0376;
+        box-shadow: none;
+      }
+
+      /* Bookshop.org */
+      #${WRAPPER_ID}.find-on-romance-io--bookshop {
+        margin: 12px 0 0;
+      }
+      #${WRAPPER_ID}.find-on-romance-io--bookshop #${BUTTON_ID} {
+        min-height: 52px;
+        padding: 16px;
+        border: 1px solid #DD0489;
+        border-radius: 999px;
+        background: #DD0489;
+        color: #FFFFFF !important;
+        font: 700 14px/20px Arial, Helvetica, sans-serif;
+        text-transform: uppercase;
+        box-shadow: none;
+        transform: none;
+      }
+      #${WRAPPER_ID}.find-on-romance-io--bookshop #${BUTTON_ID}:hover {
+        background: #BE0376;
+        border-color: #BE0376;
+        box-shadow: none;
+      }
+
+      /* eBooks.com */
+      #${WRAPPER_ID}.find-on-romance-io--ebooks {
+        margin: 14px 0 0;
+      }
+      #${WRAPPER_ID}.find-on-romance-io--ebooks #${BUTTON_ID} {
+        min-height: 38px;
+        padding: 8px 12px;
+        border: 1px solid #DD0489;
+        border-radius: 9px;
+        background: #DD0489;
+        color: #FFFFFF !important;
+        font: 700 14px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+        box-shadow: none;
+        transform: none;
+      }
+      #${WRAPPER_ID}.find-on-romance-io--ebooks #${BUTTON_ID}:hover {
+        background: #BE0376;
+        border-color: #BE0376;
+        box-shadow: none;
+      }
     `;
     document.documentElement.append(style);
   }
@@ -336,6 +408,33 @@
     return wrapper;
   }
 
+  function buildBarnesAndNobleButton(bookProvider) {
+    const wrapper = buildDefaultButton(bookProvider);
+    wrapper.classList.add("find-on-romance-io--barnesandnoble");
+
+    const button = wrapper.querySelector(`#${BUTTON_ID}`);
+    button.className = "btn btn--primary w-full lg:w-[240px] find-on-romance-io-barnesandnoble-button";
+    return wrapper;
+  }
+
+  function buildBookshopButton(bookProvider) {
+    const wrapper = buildDefaultButton(bookProvider);
+    wrapper.classList.add("find-on-romance-io--bookshop");
+
+    const button = wrapper.querySelector(`#${BUTTON_ID}`);
+    button.className = "flex w-full cursor-pointer items-center justify-center gap-2 rounded-full px-4 py-4 text-sm font-bold uppercase tracking-wider text-white find-on-romance-io-bookshop-button";
+    return wrapper;
+  }
+
+  function buildEbooksButton(bookProvider) {
+    const wrapper = buildDefaultButton(bookProvider);
+    wrapper.classList.add("find-on-romance-io--ebooks");
+
+    const button = wrapper.querySelector(`#${BUTTON_ID}`);
+    button.className = "btn btn-primary btn-block find-on-romance-io-ebooks-button";
+    return wrapper;
+  }
+
   function buildVariantButton(bookProvider, variant) {
     const wrapper = buildDefaultButton(bookProvider);
     wrapper.classList.add(`find-on-romance-io--${variant}`);
@@ -350,6 +449,9 @@
     if (variant === "audible") return buildAudibleButton(bookProvider);
     if (variant === "kobo") return buildKoboButton(bookProvider);
     if (variant === "smashwords") return buildSmashwordsButton(bookProvider);
+    if (variant === "barnesandnoble") return buildBarnesAndNobleButton(bookProvider);
+    if (variant === "bookshop") return buildBookshopButton(bookProvider);
+    if (variant === "ebooks") return buildEbooksButton(bookProvider);
     if (variant === "storygraph") return buildVariantButton(bookProvider, variant);
     return buildDefaultButton(bookProvider);
   }
@@ -361,6 +463,8 @@
       container.insertAdjacentElement("afterend", wrapper);
     } else if (position === "before") {
       container.insertAdjacentElement("beforebegin", wrapper);
+    } else if (position === "append") {
+      container.append(wrapper);
     } else {
       container.prepend(wrapper);
     }

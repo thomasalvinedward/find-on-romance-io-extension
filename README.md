@@ -1,6 +1,6 @@
 # Find on Romance.io
 
-A Chrome extension for quickly finding books on [Romance.io](https://www.romance.io/) from Amazon, Goodreads, Audible, Smashwords, Kobo, StoryGraph, or selected text on any page.
+A Chrome extension for quickly finding books on [Romance.io](https://www.romance.io/) from Amazon, Barnes & Noble, Bookshop.org, eBooks.com, Goodreads, Audible, Smashwords, Kobo, StoryGraph, or selected text on any page.
 
 ## Features
 
@@ -13,6 +13,9 @@ A Chrome extension for quickly finding books on [Romance.io](https://www.romance
 ## Supported Sites
 
 - Amazon
+- Barnes & Noble
+- Bookshop.org
+- eBooks.com
 - Goodreads
 - Audible
 - Smashwords
@@ -40,7 +43,7 @@ https://github.com/user-attachments/assets/69ac8768-bcf9-489f-b7b6-131fbc3a273b
 3. Enable **Developer mode**.
 4. Select **Load unpacked**.
 5. Choose this project folder.
-6. Refresh any already-open Amazon, Goodreads, Audible, Smashwords, Kobo, StoryGraph, or Romance.io tabs.
+6. Refresh any already-open Amazon, Barnes & Noble, Bookshop.org, eBooks.com, Goodreads, Audible, Smashwords, Kobo, StoryGraph, or Romance.io tabs.
 
 ## Permissions
 
@@ -62,6 +65,9 @@ Project structure:
 - `manifest.json`: Chrome extension manifest
 - `background/context-menu.js`: selected-text context menu search
 - `content/amazon.js`: Amazon page integration
+- `content/barnesandnoble.js`: Barnes & Noble page integration
+- `content/bookshop.js`: Bookshop.org page integration
+- `content/ebooks.js`: eBooks.com page integration
 - `content/goodreads.js`: Goodreads page integration
 - `content/audible.js`: Audible page integration
 - `content/smashwords.js`: Smashwords page integration
@@ -82,6 +88,9 @@ node --check shared/logic.js
 node --check shared/storage.js
 node --check shared/ui.js
 node --check content/amazon.js
+node --check content/barnesandnoble.js
+node --check content/bookshop.js
+node --check content/ebooks.js
 node --check content/goodreads.js
 node --check content/audible.js
 node --check content/smashwords.js
@@ -92,4 +101,4 @@ node --check content/romance-search.js
 
 ## Disclaimer
 
-This project is not affiliated with Romance.io, Amazon, Goodreads, Audible, Smashwords, Kobo, StoryGraph, or Google.
+This project is not affiliated with Romance.io, Amazon, Barnes & Noble, Bookshop.org, eBooks.com, Goodreads, Audible, Smashwords, Kobo, StoryGraph, or Google.

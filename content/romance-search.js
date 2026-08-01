@@ -76,24 +76,51 @@
     return anchor.parentElement ?? anchor;
   }
 
-  function titleFromAnchor(anchor) {
+  function escapeRegExp(value) {
+    return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  function stripKnownAuthorSuffix(value) {
+    let title = value;
+    const authorNames = RIO.unique((book.authors ?? [])
+      .flatMap((author) => [author, RIO.compactInitials(author)])
+      .map(RIO.cleanWhitespace))
+      .sort((a, b) => b.length - a.length);
+
+    for (const author of authorNames) {
+      const pattern = new RegExp(`\\s+by\\s+${escapeRegExp(author)}\\s*$`, "i");
+      if (pattern.test(title)) {
+        title = title.replace(pattern, "").trim();
+        break;
+      }
+    }
+
+    return title;
+  }
+
+  function titleValuesFromAnchor(anchor, slug) {
     const explicit = RIO.cleanWhitespace(
       anchor.getAttribute("title") || anchor.getAttribute("aria-label")
     );
     const visible = RIO.cleanWhitespace(anchor.textContent);
     const imageAlt = RIO.cleanWhitespace(anchor.querySelector("img")?.alt);
-    return cleanResultTitle(explicit || visible || imageAlt || getSlug(anchor));
+    return RIO.unique([explicit, visible, imageAlt, slug])
+      .map(cleanResultTitle)
+      .filter(Boolean);
   }
 
   function cleanResultTitle(value) {
-    return RIO.getCoreTitle(RIO.cleanWhitespace(value)
+    return RIO.getCoreTitle(stripKnownAuthorSuffix(RIO.cleanWhitespace(value)
       .replace(/^#?\{?index\}?\s*[-–—]\s*/i, "")
-      .replace(/\s+by\s+.+$/i, ""));
+      .replace(/^cover image of\s+/i, "")));
+  }
+
+  function scoreForCandidate(candidate) {
+    return RIO.scoreCandidate(book, candidate).score;
   }
 
   function collectCandidates() {
-    const seen = new Set();
-    const candidates = [];
+    const candidatesByPath = new Map();
     for (const anchor of document.querySelectorAll('a[href*="/books/"]')) {
       let url;
       try {
@@ -102,18 +129,25 @@
         continue;
       }
       if (url.origin !== location.origin || !/^\/books\/[^/]+\/[^/]+/.test(url.pathname)) continue;
-      if (seen.has(url.pathname)) continue;
-      seen.add(url.pathname);
 
+      const slug = getSlug(anchor);
       const container = findResultContainer(anchor);
-      candidates.push({
-        url: `${url.origin}${url.pathname}${url.search}`,
-        title: titleFromAnchor(anchor),
-        contextText: RIO.cleanWhitespace(container?.innerText),
-        slug: getSlug(anchor)
-      });
+      const contextText = RIO.cleanWhitespace(container?.innerText);
+      const urlValue = `${url.origin}${url.pathname}${url.search}`;
+      for (const title of titleValuesFromAnchor(anchor, slug)) {
+        const candidate = {
+          url: urlValue,
+          title,
+          contextText,
+          slug
+        };
+        const existing = candidatesByPath.get(url.pathname);
+        if (!existing || scoreForCandidate(candidate) > scoreForCandidate(existing)) {
+          candidatesByPath.set(url.pathname, candidate);
+        }
+      }
     }
-    return candidates;
+    return [...candidatesByPath.values()];
   }
 
   async function evaluate() {

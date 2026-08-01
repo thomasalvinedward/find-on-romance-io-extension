@@ -13,9 +13,14 @@
     "#bylineInfo a.contrib-link",
     "#bylineInfo a[href*='/e/']"
   ];
-  const PRIMARY_PLACEMENT_SELECTOR = "#rightCol";
+  const PRIMARY_PLACEMENT_SELECTORS = [
+    "#desktop-below-image-block",
+    "#imageBlock_feature_div",
+    "#imageBlock",
+    "#leftCol"
+  ];
   const FALLBACK_PLACEMENT_SELECTORS = [
-    "#centerCol",
+    "#rightCol",
     "#title_feature_div"
   ];
 
@@ -96,10 +101,11 @@
   }
 
   async function insertRomanceButton() {
-    const primary = await RIO.waitForElement(PRIMARY_PLACEMENT_SELECTOR);
+    const primary = await RIO.waitForElement(PRIMARY_PLACEMENT_SELECTORS);
     if (primary) {
       return RIO.insertButton({
         container: primary,
+        position: "after",
         bookProvider: extractBook,
         variant: SOURCE
       });

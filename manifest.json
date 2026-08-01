@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Find on Romance.io",
-  "version": "1.1.0",
-  "description": "Find books on Romance.io from Amazon, Goodreads, Audible, Smashwords, Kobo, StoryGraph, or selected text on any page.",
+  "version": "1.2.0",
+  "description": "Find books on Romance.io from Amazon, Barnes & Noble, Bookshop.org, eBooks.com, Goodreads, Audible, Smashwords, Kobo, StoryGraph, or selected text on any page.",
   "permissions": [
     "contextMenus",
     "storage"
@@ -27,6 +27,45 @@
         "shared/storage.js",
         "shared/ui.js",
         "content/amazon.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.barnesandnoble.com/w/*",
+        "https://barnesandnoble.com/w/*"
+      ],
+      "js": [
+        "shared/logic.js",
+        "shared/storage.js",
+        "shared/ui.js",
+        "content/barnesandnoble.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://bookshop.org/p/books/*",
+        "https://www.bookshop.org/p/books/*"
+      ],
+      "js": [
+        "shared/logic.js",
+        "shared/storage.js",
+        "shared/ui.js",
+        "content/bookshop.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.ebooks.com/*/book/*",
+        "https://ebooks.com/*/book/*"
+      ],
+      "js": [
+        "shared/logic.js",
+        "shared/storage.js",
+        "shared/ui.js",
+        "content/ebooks.js"
       ],
       "run_at": "document_idle"
     },

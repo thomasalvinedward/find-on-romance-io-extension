@@ -14,9 +14,10 @@
     '.BookPageMetadataSection a[href*="/author/show/"]'
   ];
   const PRIMARY_PLACEMENT_SELECTORS = [
-    ".BookActions",
     '[data-testid="bookActions"]',
-    '[class*="BookActions"]'
+    ".BookActions",
+    '[class*="BookActions"]',
+    ".BookActions__button"
   ];
   const FALLBACK_PLACEMENT_SELECTORS = [
     ".BookPage__rightColumn",
@@ -57,9 +58,14 @@
   async function insertRomanceButton() {
     const primary = await RIO.waitForElement(PRIMARY_PLACEMENT_SELECTORS);
     if (primary) {
+      const isButtonLike = primary.matches("button, a, .BookActions__button");
+      const container = isButtonLike
+        ? primary.closest('[data-testid="bookActions"], .BookActions, [class*="BookActions"]')?.parentElement ?? primary
+        : primary;
+
       return RIO.insertButton({
-        container: primary,
-        position: "prepend",
+        container,
+        position: isButtonLike ? "after" : "prepend",
         bookProvider: extractBook,
         variant: SOURCE
       });
