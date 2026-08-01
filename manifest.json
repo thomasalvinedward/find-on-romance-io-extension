@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Find on Romance.io",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Find books on Romance.io from Amazon, Barnes & Noble, Bookshop.org, eBooks.com, Goodreads, Audible, Smashwords, Kobo, StoryGraph, or selected text on any page.",
   "permissions": [
     "contextMenus",
@@ -97,8 +97,8 @@
     },
     {
       "matches": [
-        "https://www.smashwords.com/books/view/*",
-        "https://smashwords.com/books/view/*"
+        "https://www.smashwords.com/books/*",
+        "https://smashwords.com/books/*"
       ],
       "js": [
         "shared/logic.js",

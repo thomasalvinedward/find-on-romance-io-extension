@@ -18,9 +18,10 @@
     "#react-root h1"
   ];
   const FALLBACK_PLACEMENT_SELECTOR = "#react-root";
+  const BOOK_PATH_PATTERN = /^\/books\/(?:view\/)?(\d+)(?:\/|$)/;
 
   function isSupportedPage() {
-    if (!/^\/books\/view\/\d+(?:\/|$)/.test(location.pathname)) return false;
+    if (!BOOK_PATH_PATTERN.test(location.pathname)) return false;
     const structured = RIO.extractStructuredBook();
     return Boolean(structured?.title && structured?.authors?.length);
   }
@@ -57,7 +58,7 @@
 
   function getIdentifiers() {
     return {
-      smashwordsId: location.pathname.match(/^\/books\/view\/(\d+)/)?.[1] ?? "",
+      smashwordsId: location.pathname.match(BOOK_PATH_PATTERN)?.[1] ?? "",
       isbn: metaContent('meta[property="books:isbn"]')
     };
   }
