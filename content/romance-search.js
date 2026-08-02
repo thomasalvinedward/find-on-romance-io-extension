@@ -88,7 +88,7 @@
       .sort((a, b) => b.length - a.length);
 
     for (const author of authorNames) {
-      const pattern = new RegExp(`\\s+by\\s+${escapeRegExp(author)}\\s*$`, "i");
+      const pattern = new RegExp(`\\s+(?:by\\s+)?${escapeRegExp(author)}\\s*$`, "i");
       if (pattern.test(title)) {
         title = title.replace(pattern, "").trim();
         break;

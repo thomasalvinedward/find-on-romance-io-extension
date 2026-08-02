@@ -90,6 +90,10 @@
       .filter((token) => token.length > 0);
   }
 
+  function cleanAuthorName(value) {
+    return cleanWhitespace(value).replace(/\s*\([^()]+\)\s*$/u, "").trim();
+  }
+
   function authorAppearsInText(author, text) {
     const authorVariants = unique([
       normalize(author),
@@ -254,7 +258,7 @@
       source,
       rawTitle: cleanedTitle,
       coreTitle: getCoreTitle(cleanedTitle),
-      authors: unique(authors ?? []),
+      authors: unique((authors ?? []).map(cleanAuthorName)),
       ...identifiers,
       isbn: cleanWhitespace(identifiers.isbn || structured?.isbn || "")
     };
@@ -357,6 +361,7 @@
     cleanWhitespace,
     normalize,
     compactInitials,
+    cleanAuthorName,
     meaningfulTokens,
     unique,
     getCoreTitle,

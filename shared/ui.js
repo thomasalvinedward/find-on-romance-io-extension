@@ -298,6 +298,10 @@
   }
 
   function attachClickHandler(button, bookProvider) {
+    function isExtensionContextError(error) {
+      return String(error?.message ?? error).includes("Extension context invalidated");
+    }
+
     button.addEventListener("click", async () => {
       if (button.getAttribute("aria-busy") === "true") return;
       button.setAttribute("aria-busy", "true");
@@ -319,9 +323,15 @@
         const searchUrl = NS.createSearchUrl(enriched, lookupId);
         window.open(searchUrl, "_blank", "noopener,noreferrer");
       } catch (error) {
-        console.error("Find on Romance.io:", error);
-        button.textContent = "Couldn’t identify this book";
-        button.title = error instanceof Error ? error.message : String(error);
+        if (isExtensionContextError(error)) {
+          console.warn("Find on Romance.io: extension was reloaded; refresh this page to use the updated extension.");
+          button.textContent = "Refresh page to use extension";
+          button.title = "The extension was reloaded after this page opened. Refresh the page and try again.";
+        } else {
+          console.error("Find on Romance.io:", error);
+          button.textContent = "Couldn’t identify this book";
+          button.title = error instanceof Error ? error.message : String(error);
+        }
         setTimeout(() => {
           button.textContent = originalText;
           button.removeAttribute("aria-busy");
