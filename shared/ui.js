@@ -321,6 +321,28 @@
         };
         const lookupId = await NS.saveLookup(enriched);
         const searchUrl = NS.createSearchUrl(enriched, lookupId);
+        NS.debugLog?.("source metadata", {
+          source: enriched.source,
+          sourceUrl: enriched.sourceUrl,
+          rawTitle: enriched.rawTitle,
+          titleParts: enriched.titleParts ?? NS.extractTitleParts(enriched.rawTitle),
+          coreTitle: enriched.coreTitle,
+          authors: enriched.authors,
+          identifiers: {
+            amazonAsin: enriched.amazonAsin,
+            audibleAsin: enriched.audibleAsin,
+            barnesAndNobleId: enriched.barnesAndNobleId,
+            bookshopId: enriched.bookshopId,
+            ebooksId: enriched.ebooksId,
+            goodreadsId: enriched.goodreadsId,
+            koboId: enriched.koboId,
+            smashwordsId: enriched.smashwordsId,
+            storygraphId: enriched.storygraphId,
+            isbn: enriched.isbn
+          },
+          lookupId,
+          searchUrl
+        });
         window.open(searchUrl, "_blank", "noopener,noreferrer");
       } catch (error) {
         if (isExtensionContextError(error)) {

@@ -7,6 +7,27 @@
   const lookupId = decodeURIComponent(hashMatch[1]);
   const book = await RIO.getLookup(lookupId);
   if (!book) return;
+  RIO.debugLog?.("loaded lookup metadata", {
+    lookupId,
+    source: book.source,
+    sourceUrl: book.sourceUrl,
+    rawTitle: book.rawTitle,
+    titleParts: book.titleParts ?? RIO.extractTitleParts(book.rawTitle),
+    coreTitle: book.coreTitle,
+    authors: book.authors,
+    identifiers: {
+      amazonAsin: book.amazonAsin,
+      audibleAsin: book.audibleAsin,
+      barnesAndNobleId: book.barnesAndNobleId,
+      bookshopId: book.bookshopId,
+      ebooksId: book.ebooksId,
+      goodreadsId: book.goodreadsId,
+      koboId: book.koboId,
+      smashwordsId: book.smashwordsId,
+      storygraphId: book.storygraphId,
+      isbn: book.isbn
+    }
+  });
 
   const STATUS_ID = "find-on-romance-io-search-status";
   let hasEvaluated = false;
@@ -110,9 +131,9 @@
   }
 
   function cleanResultTitle(value) {
-    return RIO.getCoreTitle(stripKnownAuthorSuffix(RIO.cleanWhitespace(value)
+    return RIO.extractTitleParts(stripKnownAuthorSuffix(RIO.cleanWhitespace(value)
       .replace(/^#?\{?index\}?\s*[-–—]\s*/i, "")
-      .replace(/^cover image of\s+/i, "")));
+      .replace(/^cover image of\s+/i, ""))).displayTitle;
   }
 
   function scoreForCandidate(candidate) {
@@ -121,14 +142,21 @@
 
   function collectCandidates() {
     const candidatesByPath = new Map();
+    let inspectedAnchors = 0;
+    let skippedAnchors = 0;
     for (const anchor of document.querySelectorAll('a[href*="/books/"]')) {
+      inspectedAnchors += 1;
       let url;
       try {
         url = new URL(anchor.href, location.href);
       } catch {
+        skippedAnchors += 1;
         continue;
       }
-      if (url.origin !== location.origin || !/^\/books\/[^/]+\/[^/]+/.test(url.pathname)) continue;
+      if (!/(^|\.)romance\.io$/i.test(url.hostname) || !/^\/books\/[a-f0-9]{12,}(?:\/[^/]+)?/i.test(url.pathname)) {
+        skippedAnchors += 1;
+        continue;
+      }
 
       const slug = getSlug(anchor);
       const container = findResultContainer(anchor);
@@ -138,6 +166,7 @@
         const candidate = {
           url: urlValue,
           title,
+          titleParts: RIO.extractTitleParts(title),
           contextText,
           slug
         };
@@ -147,7 +176,13 @@
         }
       }
     }
-    return [...candidatesByPath.values()];
+    const candidates = [...candidatesByPath.values()];
+    RIO.debugLog?.("candidate extraction", {
+      inspectedAnchors,
+      skippedAnchors,
+      uniqueBookCandidates: candidates.length
+    });
+    return candidates;
   }
 
   async function evaluate() {
@@ -159,6 +194,35 @@
     const result = RIO.pickBestMatch(book, candidates, {
       threshold: 0.90,
       minimumLead: 0.08
+    });
+    RIO.debugTable?.("ranked result scores", result.ranked.slice(0, 25).map((candidate, index) => ({
+      rank: index + 1,
+      score: Number(candidate.score.toFixed(3)),
+      authorMatched: candidate.authorMatched,
+      title: candidate.title,
+      displayTitle: candidate.titleParts?.displayTitle,
+      coreTitle: candidate.titleParts?.coreTitle,
+      subtitle: candidate.titleParts?.subtitle,
+      reasons: candidate.reasons.join("; "),
+      url: candidate.url
+    })));
+    RIO.debugLog?.("match decision", {
+      confident: result.confident,
+      threshold: 0.90,
+      minimumLead: 0.08,
+      lead: Number(result.lead.toFixed(3)),
+      best: result.best && {
+        title: result.best.title,
+        score: result.best.score,
+        reasons: result.best.reasons,
+        url: result.best.url
+      },
+      second: result.second && {
+        title: result.second.title,
+        score: result.second.score,
+        reasons: result.second.reasons,
+        url: result.second.url
+      }
     });
 
     await RIO.removeLookup(lookupId);

@@ -58,30 +58,53 @@
       /\b(?:book|series|duet|trilogy|saga|chronicles)\s*\d*\b/i.test(suffix);
   }
 
-  function getCoreTitle(rawTitle) {
-    let title = cleanWhitespace(rawTitle)
+  function extractTitleParts(rawTitle) {
+    const originalTitle = cleanWhitespace(rawTitle);
+    let title = originalTitle
       .replace(/^\s*(?:audiobook|kindle edition)\s*[:–—-]\s*/i, "")
       .replace(/\s*\[(?:unabridged|audiobook|audio)\]\s*$/i, "")
       .trim();
+    const parentheticals = [];
 
-    // Retailer titles often end with series, edition, or marketing details.
     let previous;
     do {
       previous = title;
-      title = title.replace(/\s*\([^()]+\)\s*$/u, "").trim();
+      title = title.replace(/\s*\(([^()]+)\)\s*$/u, (_match, content) => {
+        parentheticals.unshift(cleanWhitespace(content));
+        return "";
+      }).trim();
     } while (title !== previous);
+
+    let coreTitle = title;
+    let subtitle = "";
+    let separator = "";
 
     const colonIndex = title.indexOf(":");
     if (colonIndex > 0) {
-      title = title.slice(0, colonIndex).trim();
+      coreTitle = title.slice(0, colonIndex).trim();
+      subtitle = title.slice(colonIndex + 1).trim();
+      separator = ":";
     } else {
       const dashMatch = title.match(/\s+[–—-]\s+(.+)$/u);
       if (dashMatch && looksLikeSubtitle(dashMatch[1])) {
-        title = title.slice(0, dashMatch.index).trim();
+        coreTitle = title.slice(0, dashMatch.index).trim();
+        subtitle = dashMatch[1].trim();
+        separator = "dash";
       }
     }
 
-    return title || cleanWhitespace(rawTitle);
+    return {
+      rawTitle: originalTitle,
+      displayTitle: title || originalTitle,
+      coreTitle: coreTitle || title || originalTitle,
+      subtitle,
+      separator,
+      parentheticals
+    };
+  }
+
+  function getCoreTitle(rawTitle) {
+    return extractTitleParts(rawTitle).coreTitle;
   }
 
   function authorTokens(author) {
@@ -151,10 +174,35 @@
     return matches / sourceTokens.length;
   }
 
+  function debugLog(label, value) {
+    if (!globalThis.console?.groupCollapsed) return;
+    console.groupCollapsed(`Find on Romance.io: ${label}`);
+    console.log(value);
+    console.groupEnd();
+  }
+
+  function debugTable(label, rows) {
+    if (!globalThis.console?.groupCollapsed) return;
+    console.groupCollapsed(`Find on Romance.io: ${label}`);
+    if (globalThis.console?.table) {
+      console.table(rows);
+    } else {
+      console.log(rows);
+    }
+    console.groupEnd();
+  }
+
   function scoreCandidate(book, candidate) {
-    const coreTitle = normalize(book.coreTitle || getCoreTitle(book.rawTitle));
+    const sourceTitleParts = book.titleParts ?? extractTitleParts(book.rawTitle);
+    const candidateTitleParts = candidate.titleParts ?? extractTitleParts(candidate.title);
+    const coreTitle = normalize(book.coreTitle || sourceTitleParts.coreTitle);
     const rawTitle = normalize(book.rawTitle);
+    const sourceDisplayTitle = normalize(sourceTitleParts.displayTitle);
+    const sourceSubtitle = normalize(sourceTitleParts.subtitle);
     const candidateTitle = normalize(candidate.title);
+    const candidateDisplayTitle = normalize(candidateTitleParts.displayTitle);
+    const candidateCoreTitle = normalize(candidateTitleParts.coreTitle);
+    const candidateSubtitle = normalize(candidateTitleParts.subtitle);
     const candidateContext = normalize([
       candidate.title,
       candidate.contextText,
@@ -178,9 +226,23 @@
     let titleScore = 0;
     const reasons = ["author matched"];
 
-    if (candidateTitle === coreTitle) {
-      titleScore = 0.74;
-      reasons.push("exact core title");
+    if (candidateDisplayTitle && candidateDisplayTitle === sourceDisplayTitle) {
+      titleScore = 0.76;
+      reasons.push("exact display title");
+    } else if (candidateCoreTitle && candidateCoreTitle === coreTitle) {
+      if (sourceSubtitle && candidateSubtitle === sourceSubtitle) {
+        titleScore = 0.74;
+        reasons.push("exact core title and subtitle");
+      } else if (sourceSubtitle) {
+        titleScore = 0.55;
+        reasons.push("exact core title with missing or different subtitle");
+      } else if (!sourceSubtitle && candidateSubtitle) {
+        titleScore = 0.59;
+        reasons.push("exact core title with extra candidate subtitle");
+      } else {
+        titleScore = 0.74;
+        reasons.push("exact core title");
+      }
     } else if (
       candidateTitle.startsWith(`${coreTitle} `) ||
       coreTitle.startsWith(`${candidateTitle} `) ||
@@ -254,10 +316,12 @@
 
   function createBookRecord({ source, rawTitle, authors, identifiers = {}, structured = null }) {
     const cleanedTitle = cleanWhitespace(rawTitle);
+    const titleParts = extractTitleParts(cleanedTitle);
     return {
       source,
       rawTitle: cleanedTitle,
-      coreTitle: getCoreTitle(cleanedTitle),
+      titleParts,
+      coreTitle: titleParts.coreTitle,
       authors: unique((authors ?? []).map(cleanAuthorName)),
       ...identifiers,
       isbn: cleanWhitespace(identifiers.isbn || structured?.isbn || "")
@@ -362,8 +426,11 @@
     normalize,
     compactInitials,
     cleanAuthorName,
+    debugLog,
+    debugTable,
     meaningfulTokens,
     unique,
+    extractTitleParts,
     getCoreTitle,
     authorAppearsInText,
     scoreCandidate,
