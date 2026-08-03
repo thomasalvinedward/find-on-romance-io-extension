@@ -11,6 +11,10 @@
     '#react-root a[href*="/profile/"]',
     'a[href*="/profile/view/"]'
   ];
+  const SAMPLE_BUTTON_SELECTORS = [
+    '#react-root a.btn[href*="/extreader/readEpub/"][href$="/sample"]',
+    '#react-root a.btn[href*="/books/read/"][href*="/sample"]'
+  ];
   const PRIMARY_PLACEMENT_SELECTORS = [
     "#react-root .book-cover-frame",
     "#react-root img.book-cover",
@@ -74,7 +78,29 @@
     });
   }
 
+  function setButtonWidthFromSample(sampleButton) {
+    const wrapper = document.getElementById("find-on-romance-io-extension-wrapper");
+    const width = sampleButton?.getBoundingClientRect().width;
+    if (wrapper && width > 0) {
+      wrapper.style.setProperty("--find-on-romance-io-smashwords-width", `${width}px`);
+    }
+  }
+
   async function insertRomanceButton() {
+    if (!(await RIO.isButtonEnabled(SOURCE))) return false;
+
+    const sampleButton = await RIO.waitForElement(SAMPLE_BUTTON_SELECTORS, 12000);
+    if (sampleButton) {
+      const inserted = RIO.insertButton({
+        container: sampleButton,
+        position: "after",
+        bookProvider: extractBook,
+        variant: SOURCE
+      });
+      if (inserted) setButtonWidthFromSample(sampleButton);
+      return inserted;
+    }
+
     const primary = await RIO.waitForElement(PRIMARY_PLACEMENT_SELECTORS);
     if (primary) {
       const isTitle = primary.matches("h1");
@@ -104,5 +130,7 @@
   }
 
   if (!isSupportedPage()) return;
+  RIO.watchButtonSetting(SOURCE, insertRomanceButton);
+  if (!(await RIO.isButtonEnabled(SOURCE))) return;
   await insertRomanceButton();
 })();

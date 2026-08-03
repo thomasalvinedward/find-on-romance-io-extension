@@ -56,6 +56,8 @@
   }
 
   async function insertRomanceButton() {
+    if (!(await RIO.isButtonEnabled(SOURCE))) return false;
+
     const primary = await RIO.waitForElement(PRIMARY_PLACEMENT_SELECTORS);
     if (primary) {
       const isButtonLike = primary.matches("button, a, .BookActions__button");
@@ -94,5 +96,7 @@
   }
 
   if (!isSupportedPage()) return;
+  RIO.watchButtonSetting(SOURCE, insertRomanceButton);
+  if (!(await RIO.isButtonEnabled(SOURCE))) return;
   await insertRomanceButton();
 })();

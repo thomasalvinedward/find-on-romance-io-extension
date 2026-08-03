@@ -65,11 +65,34 @@
     });
   }
 
+  function hasWishlistAction(element) {
+    return Array.from(element.querySelectorAll("a, button"))
+      .some((action) => /wishlist/i.test(RIO.cleanWhitespace(action.textContent)));
+  }
+
+  function findPurchaseActionRow(cartForm) {
+    let element = cartForm.parentElement;
+    const main = document.querySelector("main[aria-label='primary content']") ?? document.body;
+
+    while (element && element !== main && element !== document.body) {
+      if (hasWishlistAction(element)) return element;
+      element = element.parentElement;
+    }
+
+    return cartForm;
+  }
+
   async function insertRomanceButton() {
+    if (!(await RIO.isButtonEnabled(SOURCE))) return false;
+
     const primary = await RIO.waitForElement(PRIMARY_PLACEMENT_SELECTORS);
     if (primary) {
+      const container = primary.matches("form")
+        ? findPurchaseActionRow(primary)
+        : primary;
+
       return RIO.insertButton({
-        container: primary,
+        container,
         position: "after",
         bookProvider: extractBook,
         variant: SOURCE
@@ -90,5 +113,7 @@
   }
 
   if (!isSupportedPage()) return;
+  RIO.watchButtonSetting(SOURCE, insertRomanceButton);
+  if (!(await RIO.isButtonEnabled(SOURCE))) return;
   await insertRomanceButton();
 })();

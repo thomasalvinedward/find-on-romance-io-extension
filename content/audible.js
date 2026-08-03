@@ -105,6 +105,8 @@
   }
 
   async function insertRomanceButton() {
+    if (!(await RIO.isButtonEnabled(SOURCE))) return false;
+
     const buyBox = await RIO.waitForElement(PRIMARY_PLACEMENT_SELECTORS);
     const lastBuyBoxRow = buyBox ? findLastBuyBoxRow(buyBox) : null;
     if (lastBuyBoxRow) {
@@ -140,5 +142,7 @@
   }
 
   if (!isSupportedPage()) return;
+  RIO.watchButtonSetting(SOURCE, insertRomanceButton);
+  if (!(await RIO.isButtonEnabled(SOURCE))) return;
   await insertRomanceButton();
 })();

@@ -115,6 +115,8 @@
   }
 
   async function insertRomanceButton() {
+    if (!(await RIO.isButtonEnabled(SOURCE))) return false;
+
     const primary = await waitForVisibleElement(PRIMARY_PLACEMENT_SELECTORS, 12000);
     if (primary) {
       return RIO.insertButton({
@@ -139,6 +141,8 @@
   }
 
   if (!isSupportedPage()) return;
+  RIO.watchButtonSetting(SOURCE, insertRomanceButton);
+  if (!(await RIO.isButtonEnabled(SOURCE))) return;
   await insertRomanceButton();
   if (!document.getElementById(BUTTON_ID)) {
     setTimeout(insertRomanceButton, 3000);

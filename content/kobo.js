@@ -15,10 +15,12 @@
     "span.authors.product-field a.contributor-name"
   ];
   const PRIMARY_PLACEMENT_SELECTORS = [
-    ".primary-right-container .pricing-details",
-    ".item-info .pricing-details"
+    ".primary-right-container .pricing-details .action-container",
+    ".item-info .pricing-details .action-container"
   ];
   const FALLBACK_PLACEMENT_SELECTORS = [
+    ".primary-right-container .pricing-details",
+    ".item-info .pricing-details",
     ".item-info",
     ".primary-right-container",
     ".item-primary-metadata"
@@ -70,6 +72,25 @@
     return null;
   }
 
+  function findVisiblePrimaryActions() {
+    for (const selector of PRIMARY_PLACEMENT_SELECTORS) {
+      for (const element of document.querySelectorAll(selector)) {
+        const rect = element.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0) continue;
+        if (element.querySelector(".purchase-action, .library-action")) return element;
+      }
+    }
+    return null;
+  }
+
+  async function waitForVisiblePrimaryActions(timeoutMs) {
+    const element = findVisiblePrimaryActions();
+    if (element) return element;
+
+    await RIO.waitForElement(PRIMARY_PLACEMENT_SELECTORS, timeoutMs);
+    return findVisiblePrimaryActions();
+  }
+
   async function waitForVisibleElement(selectors, timeoutMs) {
     const element = findVisibleElement(selectors);
     if (element) return element;
@@ -79,7 +100,9 @@
   }
 
   async function insertRomanceButton() {
-    const primary = await waitForVisibleElement(PRIMARY_PLACEMENT_SELECTORS, 12000);
+    if (!(await RIO.isButtonEnabled(SOURCE))) return false;
+
+    const primary = await waitForVisiblePrimaryActions(12000);
     if (primary) {
       return RIO.insertButton({
         container: primary,
@@ -103,5 +126,7 @@
   }
 
   if (!isSupportedPage()) return;
+  RIO.watchButtonSetting(SOURCE, insertRomanceButton);
+  if (!(await RIO.isButtonEnabled(SOURCE))) return;
   await insertRomanceButton();
 })();

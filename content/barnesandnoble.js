@@ -140,6 +140,8 @@
   }
 
   async function insertRomanceButton() {
+    if (!(await RIO.isButtonEnabled(SOURCE))) return false;
+
     if (existingButtonIsUsable()) return true;
     removeStaleButton();
 
@@ -168,6 +170,8 @@
   }
 
   if (!isSupportedPage()) return;
+  RIO.watchButtonSetting(SOURCE, insertRomanceButton);
+  if (!(await RIO.isButtonEnabled(SOURCE))) return;
   await insertRomanceButton();
 
   let reinsertTimer = null;

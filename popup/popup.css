@@ -1,0 +1,137 @@
+:root {
+  color-scheme: light;
+  --accent: #dd0489;
+  --accent-dark: #b70370;
+  --border: #ded7de;
+  --text: #241c24;
+  --muted: #6a5f68;
+  --panel: #ffffff;
+  --track: #c9c0c8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 318px;
+  margin: 0;
+  background: var(--panel);
+  color: var(--text);
+  font: 14px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.popup {
+  padding: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+h2 {
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.status {
+  min-width: 42px;
+  color: var(--accent-dark);
+  font-size: 12px;
+  text-align: right;
+}
+
+.section {
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+
+.setting-list {
+  display: grid;
+  gap: 2px;
+}
+
+.toggle-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 36px;
+  cursor: pointer;
+}
+
+.toggle-label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.toggle-row input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.switch {
+  position: relative;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--track);
+  transition: background-color 140ms ease;
+}
+
+.switch::after {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  content: "";
+  transition: transform 140ms ease;
+}
+
+.toggle-row input:checked + .switch {
+  background: var(--accent);
+}
+
+.toggle-row input:checked + .switch::after {
+  transform: translateX(18px);
+}
+
+.toggle-row input:focus-visible + .switch {
+  outline: 3px solid rgba(221, 4, 137, 0.28);
+  outline-offset: 2px;
+}
+
+.note {
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+}

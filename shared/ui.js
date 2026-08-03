@@ -147,13 +147,13 @@
 
       /* Smashwords */
       #${WRAPPER_ID}.find-on-romance-io--smashwords {
-        display: inline-block;
-        width: auto;
-        margin: 12px 0;
+        display: block;
+        width: var(--find-on-romance-io-smashwords-width, auto);
+        margin: 12px auto 0;
       }
       #${WRAPPER_ID}.find-on-romance-io--smashwords #${BUTTON_ID} {
-        display: inline-block;
-        width: auto;
+        display: block;
+        width: 100%;
         min-height: 29px;
         padding: 4px 8px;
         border: 1px solid #DD0489;
@@ -253,7 +253,13 @@
 
       /* Bookshop.org */
       #${WRAPPER_ID}.find-on-romance-io--bookshop {
+        width: 100%;
         margin: 12px 0 0;
+      }
+      @media (min-width: 1024px) {
+        #${WRAPPER_ID}.find-on-romance-io--bookshop {
+          width: calc((100% - 12px) / 2);
+        }
       }
       #${WRAPPER_ID}.find-on-romance-io--bookshop #${BUTTON_ID} {
         min-height: 52px;
@@ -503,6 +509,27 @@
     return true;
   }
 
+  function removeButton() {
+    document.getElementById(WRAPPER_ID)?.remove();
+  }
+
+  async function syncButtonSetting(source, insertButton) {
+    if (await NS.isButtonEnabled(source)) {
+      await insertButton();
+    } else {
+      removeButton();
+    }
+  }
+
+  function watchButtonSetting(source, insertButton) {
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+      if (areaName !== "local" || !changes[NS.SETTINGS_KEY]) return;
+      syncButtonSetting(source, insertButton).catch((error) => {
+        console.error("Find on Romance.io: failed to apply button setting", error);
+      });
+    });
+  }
+
   function waitForElement(selectors, timeoutMs = 12000) {
     const selectorList = Array.isArray(selectors) ? selectors : [selectors];
     const find = () => selectorList.map((selector) => document.querySelector(selector)).find(Boolean);
@@ -526,6 +553,6 @@
     });
   }
 
-  Object.assign(NS, { insertButton, waitForElement });
+  Object.assign(NS, { insertButton, removeButton, watchButtonSetting, waitForElement });
   globalThis.FindOnRomanceIO = NS;
 })();

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Find on Romance.io",
-  "version": "1.2.2",
+  "version": "1.3.0",
   "description": "Find Romance.io book listings from supported book pages or selected text.",
   "permissions": [
     "contextMenus",
@@ -9,6 +9,10 @@
   ],
   "background": {
     "service_worker": "background/context-menu.js"
+  },
+  "action": {
+    "default_title": "Find on Romance.io",
+    "default_popup": "popup/popup.html"
   },
   "icons": {
     "16": "icons/icon1024.png",
