@@ -9,7 +9,8 @@ A Chrome extension for quickly finding books on [Romance.io](https://www.romance
 - Redirects to the best matching Romance.io book page when the match is confident.
 - Falls back to Romance.io search results when no confident match is found.
 - Adds a right-click menu item for searching highlighted text on Romance.io.
-- Includes settings to enable or disable buttons on individual sites and turn right-click search on or off.
+- Includes settings to enable or disable buttons on individual sites, turn right-click search on or off, and control whether confident matches open automatically.
+- Links to GitHub, issue reporting, feature requests, and support are available from the extension popup.
 
 ## Supported Sites
 

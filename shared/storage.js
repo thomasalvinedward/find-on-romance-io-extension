@@ -17,7 +17,8 @@
       smashwords: true,
       storygraph: true
     }),
-    contextMenu: true
+    contextMenu: true,
+    autoOpenBestMatch: true
   });
 
   function normalizeSettings(settings) {
@@ -29,7 +30,8 @@
           buttons[source] ?? defaultValue
         ])
       ),
-      contextMenu: settings?.contextMenu ?? DEFAULT_SETTINGS.contextMenu
+      contextMenu: settings?.contextMenu ?? DEFAULT_SETTINGS.contextMenu,
+      autoOpenBestMatch: settings?.autoOpenBestMatch ?? DEFAULT_SETTINGS.autoOpenBestMatch
     };
   }
 

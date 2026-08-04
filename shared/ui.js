@@ -325,11 +325,15 @@
           coreTitle: book.coreTitle || NS.getCoreTitle(book.rawTitle),
           sourceUrl: location.href
         };
-        const lookupId = await NS.saveLookup(enriched);
+        const settings = await NS.getSettings();
+        const lookupId = settings.autoOpenBestMatch
+          ? await NS.saveLookup(enriched)
+          : "";
         const searchUrl = NS.createSearchUrl(enriched, lookupId);
         NS.debugLog?.("source metadata", {
           source: enriched.source,
           sourceUrl: enriched.sourceUrl,
+          autoOpenBestMatch: settings.autoOpenBestMatch,
           rawTitle: enriched.rawTitle,
           titleParts: enriched.titleParts ?? NS.extractTitleParts(enriched.rawTitle),
           coreTitle: enriched.coreTitle,

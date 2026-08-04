@@ -9,25 +9,48 @@
   <body>
     <main class="popup">
       <header class="header">
-        <h1>Find on Romance.io</h1>
+        <h1>
+          Find on Romance.io
+          <span id="version" class="version"></span>
+        </h1>
         <p id="status" class="status" role="status" aria-live="polite"></p>
       </header>
 
-      <section class="section" aria-labelledby="buttons-heading">
-        <h2 id="buttons-heading">Buttons</h2>
-        <div id="button-settings" class="setting-list"></div>
-      </section>
-
-      <section class="section" aria-labelledby="right-click-heading">
-        <h2 id="right-click-heading">Right-click Search</h2>
+      <section class="section" aria-labelledby="options-heading">
+        <h2 id="options-heading">Options</h2>
         <label class="toggle-row">
-          <span class="toggle-label">Selected text</span>
+          <span class="toggle-label">Auto-open best match</span>
+          <input type="checkbox" data-setting="autoOpenBestMatch">
+          <span class="switch" aria-hidden="true"></span>
+        </label>
+        <label class="toggle-row">
+          <span class="toggle-label">Right-click search</span>
           <input type="checkbox" data-setting="contextMenu">
+          <span class="switch" aria-hidden="true"></span>
+        </label>
+        <label class="toggle-row">
+          <span class="toggle-label">Search button</span>
+          <input type="checkbox" data-setting="searchButton">
           <span class="switch" aria-hidden="true"></span>
         </label>
       </section>
 
-      <p class="note">Changes apply to open book pages automatically.</p>
+      <section id="site-options" class="site-options" aria-label="Search button sites">
+        <div id="button-settings" class="site-grid"></div>
+      </section>
+
+      <footer class="footer">
+        <p class="footer-links">
+          <a href="https://github.com/thomasalvinedward/find-on-romance-io-extension" target="_blank" rel="noreferrer">GitHub</a>
+          <span aria-hidden="true">·</span>
+          <a href="https://github.com/thomasalvinedward/find-on-romance-io-extension/issues/new?template=bug_report.yml" target="_blank" rel="noreferrer">Report a bug</a>
+          <span aria-hidden="true">·</span>
+          <a href="https://github.com/thomasalvinedward/find-on-romance-io-extension/issues/new?template=feature_request.yml" target="_blank" rel="noreferrer">Request a feature</a>
+        </p>
+        <p class="support-link">
+          <a href="https://ko-fi.com/thomasalvinedward" target="_blank" rel="noreferrer">Support &hearts;</a>
+        </p>
+      </footer>
     </main>
 
     <script src="../shared/storage.js"></script>
