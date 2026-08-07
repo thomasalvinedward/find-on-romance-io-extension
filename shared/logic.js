@@ -220,27 +220,38 @@
 
     // Require author evidence before redirecting from generic title matches.
     if (!authorMatched) {
-      return { score: 0, authorMatched: false, reasons: ["author did not match"] };
+      return { score: 0, phase: "rejected", authorMatched: false, reasons: ["author did not match"] };
     }
 
-    let titleScore = 0;
     const reasons = ["author matched"];
+    let phase = "fallback";
+    let score = 0;
+
+    const rawTokens = meaningfulTokens(rawTitle);
+    const contextTokens = meaningfulTokens(candidateContext);
+    const fullTitleCoverage = setCoverage(rawTokens, contextTokens);
+    const fullTitleBonus = Math.min(0.04, fullTitleCoverage * 0.04);
+    const subtitleTokens = meaningfulTokens(sourceSubtitle);
+    const subtitleCoverage = subtitleTokens.length
+      ? setCoverage(subtitleTokens, contextTokens)
+      : 0;
+    const subtitleBonus = Math.min(0.04, subtitleCoverage * 0.04);
 
     if (candidateDisplayTitle && candidateDisplayTitle === sourceDisplayTitle) {
-      titleScore = 0.76;
+      phase = "exact-title";
+      score = 0.96;
       reasons.push("exact display title");
     } else if (candidateCoreTitle && candidateCoreTitle === coreTitle) {
+      phase = "canonical";
+      score = 0.92;
       if (sourceSubtitle && candidateSubtitle === sourceSubtitle) {
-        titleScore = 0.74;
+        score += 0.04;
         reasons.push("exact core title and subtitle");
       } else if (sourceSubtitle) {
-        titleScore = 0.55;
-        reasons.push("exact core title with missing or different subtitle");
+        reasons.push("exact core title; source subtitle treated as supplemental");
       } else if (!sourceSubtitle && candidateSubtitle) {
-        titleScore = 0.59;
-        reasons.push("exact core title with extra candidate subtitle");
+        reasons.push("exact core title; candidate subtitle treated as supplemental");
       } else {
-        titleScore = 0.74;
         reasons.push("exact core title");
       }
     } else if (
@@ -248,27 +259,32 @@
       coreTitle.startsWith(`${candidateTitle} `) ||
       candidateContext.startsWith(`${coreTitle} `)
     ) {
-      titleScore = 0.59;
+      phase = "canonical-prefix";
+      score = 0.86;
       reasons.push("core title prefix");
     } else if (candidateContext.includes(coreTitle)) {
-      titleScore = 0.54;
+      phase = "context";
+      score = 0.82;
       reasons.push("core title contained in result");
     } else {
       const sourceTokens = meaningfulTokens(coreTitle);
       const candidateTokens = meaningfulTokens(candidateTitle || candidateContext);
       const coverage = setCoverage(sourceTokens, candidateTokens);
       const ordered = orderedCoverage(sourceTokens, candidateTokens);
-      titleScore = Math.min(0.64, (coverage * 0.46) + (ordered * 0.18));
+      score = Math.min(0.78, (coverage * 0.56) + (ordered * 0.22));
       reasons.push(`title token coverage ${coverage.toFixed(2)}`);
     }
 
-    const rawTokens = meaningfulTokens(rawTitle);
-    const contextTokens = meaningfulTokens(candidateContext);
-    const fullTitleBonus = Math.min(0.08, setCoverage(rawTokens, contextTokens) * 0.08);
-    const score = Math.min(1, titleScore + 0.24 + fullTitleBonus);
+    if (fullTitleBonus > 0) {
+      reasons.push(`source title metadata coverage ${fullTitleCoverage.toFixed(2)}`);
+    }
+    if (subtitleBonus > 0) {
+      reasons.push(`subtitle metadata coverage ${subtitleCoverage.toFixed(2)}`);
+    }
 
     return {
-      score,
+      score: Math.min(1, score + fullTitleBonus + subtitleBonus),
+      phase,
       authorMatched: true,
       reasons
     };

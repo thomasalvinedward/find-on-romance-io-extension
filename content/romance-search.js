@@ -198,6 +198,7 @@
     RIO.debugTable?.("ranked result scores", result.ranked.slice(0, 25).map((candidate, index) => ({
       rank: index + 1,
       score: Number(candidate.score.toFixed(3)),
+      phase: candidate.phase,
       authorMatched: candidate.authorMatched,
       title: candidate.title,
       displayTitle: candidate.titleParts?.displayTitle,
@@ -214,12 +215,14 @@
       best: result.best && {
         title: result.best.title,
         score: result.best.score,
+        phase: result.best.phase,
         reasons: result.best.reasons,
         url: result.best.url
       },
       second: result.second && {
         title: result.second.title,
         score: result.second.score,
+        phase: result.second.phase,
         reasons: result.second.reasons,
         url: result.second.url
       }
