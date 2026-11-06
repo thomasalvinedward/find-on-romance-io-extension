@@ -209,6 +209,8 @@
     })));
     RIO.debugLog?.("match decision", {
       confident: result.confident,
+      ambiguous: result.ambiguous,
+      highConfidenceMatchCount: result.highConfidenceMatches.length,
       threshold: 0.90,
       minimumLead: 0.08,
       lead: Number(result.lead.toFixed(3)),
@@ -229,6 +231,13 @@
     });
 
     await RIO.removeLookup(lookupId);
+
+    if (result.ambiguous) {
+      showStatus(
+        `Multiple high-confidence matches were found for “${book.coreTitle}” by ${book.authors.join(", ")}. Auto-open was skipped; choose a result below. These may be duplicate listings or different editions.`
+      );
+      return true;
+    }
 
     // Redirect only when matching logic is confident. Otherwise leave the user
     // on the visible search results with an explanation.

@@ -6,12 +6,14 @@
   const TITLE_SELECTORS = [
     '[data-testid="bookTitle"]',
     "h1.Text__title1",
-    ".BookPageTitleSection h1"
+    ".BookPageTitleSection h1",
+    '.BookReviewsPage__pageHeader h1 [data-testid="title"]'
   ];
   const AUTHOR_FALLBACK_SELECTORS = [
     '.BookPageMetadataSection .ContributorLink__name',
     '.BookPageMetadataSection a[href*="/author/show/"] span[data-testid="name"]',
-    '.BookPageMetadataSection a[href*="/author/show/"]'
+    '.BookPageMetadataSection a[href*="/author/show/"]',
+    '.BookReviewsPage__pageHeader .ContributorLink__name'
   ];
   const PRIMARY_PLACEMENT_SELECTORS = [
     '[data-testid="bookActions"]',

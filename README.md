@@ -29,6 +29,8 @@ A Chrome extension for quickly finding books on [Romance.io](https://www.romance
 
 On supported retailer pages, the extension reads visible book metadata and structured page metadata, then opens Romance.io with a search query based on the book title and author. On Romance.io search results, it compares available results with the original book details and redirects only when the best match passes a strict confidence check.
 
+When multiple results pass the confidence threshold, the extension keeps the search page open and asks you to choose a result. These may be duplicate listings or different editions of the same book.
+
 Highlighted text searches work separately: select text on any page, right-click, and choose **Search Romance.io for "..."**.
 
 ## Demo

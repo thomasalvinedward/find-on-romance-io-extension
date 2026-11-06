@@ -306,13 +306,16 @@
     const best = ranked[0] ?? null;
     const second = ranked[1] ?? null;
     const lead = best ? best.score - (second?.score ?? 0) : 0;
+    const highConfidenceMatches = ranked.filter((candidate) => candidate.score >= threshold);
+    const ambiguous = highConfidenceMatches.length > 1;
     const confident = Boolean(
       best &&
       best.score >= threshold &&
+      !ambiguous &&
       (ranked.length === 1 || lead >= minimumLead)
     );
 
-    return { confident, best, second, lead, ranked };
+    return { confident, ambiguous, highConfidenceMatches, best, second, lead, ranked };
   }
 
   function createSearchUrl(book, lookupId) {
